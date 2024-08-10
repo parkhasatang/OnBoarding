@@ -6,6 +6,7 @@ public class MonsterInfo : MonoBehaviour
     public string Grade { get; private set; }
     public float Speed { get; private set; }
     public int Health { get; private set; }
+    public int CurrentHealth { get; private set; }
 
     public void Initialize(MonsterData monsterData)
     {
@@ -13,14 +14,15 @@ public class MonsterInfo : MonoBehaviour
         Grade = monsterData.Grade;
         Speed = monsterData.Speed;
         Health = monsterData.Health;
+        CurrentHealth = Health;
     }
 
     public void TakeDamage(int damage)
     {
-        Health -= damage;
-        if (Health <= 0)
+        CurrentHealth -= damage;
+        if (CurrentHealth <= 0)
         {
-            Health = 0;
+            CurrentHealth = 0;
         }
     }
 }

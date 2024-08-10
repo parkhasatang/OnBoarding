@@ -12,6 +12,7 @@ public class ResourceManager : Singleton<ResourceManager>
         base.Awake();
         // 타입별 리소스 로드
         LoadResourcesByType<TextAsset>("MonsterData");
+        LoadResourcesByType<MonsterStateController>("GameObject");
     }
 
     private void LoadResourcesByType<T>(string path) where T : UnityEngine.Object

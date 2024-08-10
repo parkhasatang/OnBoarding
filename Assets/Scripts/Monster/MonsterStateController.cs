@@ -6,20 +6,21 @@ using MonsterOwnedState;
 public enum MonsterState // 해당 State에 맞는 State를 전부 초기해줄 필요가 있음.
 {
     Idle,
-    Move,
-    Attacked,
-    Dead
+    Walk,
+    Hurt,
+    Death
 }
 
 
 public class MonsterStateController : MonoBehaviour
 {
-    public MonsterInfo MonsterInfo { get; private set; }
+    internal MonsterInfo monsterInfo;
+    private HealthBar healthBar;
     private Animator animator;
     public MonsterState currentAnimationState;
 
-    public State<MonsterStateController> currentState { get; private set; }
-    private IdleState idleState;
+    public State<MonsterStateController> CurrentState { get; private set; }
+    internal IdleState idleState;
     private MoveState moveState;
     private AttackedState attackedState;
     private DeadState deadState;
@@ -37,7 +38,17 @@ public class MonsterStateController : MonoBehaviour
 
         if (animator == null)
         {
-            animator = GetComponent<Animator>();
+            animator = GetComponentInChildren<Animator>();
+        }
+
+        if (monsterInfo == null)
+        {
+            monsterInfo = GetComponent<MonsterInfo>();
+        }
+
+        if (healthBar == null)
+        {
+            healthBar = GetComponent<HealthBar>();
         }
     }
 
@@ -48,14 +59,14 @@ public class MonsterStateController : MonoBehaviour
 
     private void Update()
     {
-        currentState?.Execute(this);
+        CurrentState?.Execute(this);
     }
 
     public void ChangeState(State<MonsterStateController> newState)
     {
-        currentState?.Exit(this);
-        currentState = newState;
-        currentState?.Enter(this);
+        CurrentState?.Exit(this);
+        CurrentState = newState;
+        CurrentState?.Enter(this);
     }
 
     public void ChangeAnimationState(MonsterState newState)
@@ -68,9 +79,10 @@ public class MonsterStateController : MonoBehaviour
 
     public void TakeDamage(int damage, Vector3 knockbackDir)
     {
-        MonsterInfo.TakeDamage(damage);
+        monsterInfo.TakeDamage(damage);
+        healthBar.SetHealth(monsterInfo.CurrentHealth);
 
-        if (MonsterInfo.Health <= 0)
+        if (monsterInfo.CurrentHealth <= 0)
         {
             ChangeState(deadState);
         }
@@ -93,5 +105,11 @@ public class MonsterStateController : MonoBehaviour
         {
             ChangeState(moveState);
         }
+    }
+
+    public void ResetMonster()
+    {
+        healthBar.SetMaxHealth(monsterInfo.Health); // 체력바 초기화
+        ChangeState(idleState); // 초기 상태로 설정
     }
 }
